@@ -77,7 +77,7 @@ const Home = () => {
           controls
           autoPlay
           loop
-          controlsList="nodownload nofullscreen noremoteplayback noremoteplayback"
+          controlsList="nodownload nofullscreen  noremoteplayback"
           disablePictureInPicture
           disableRemotePlayback
           src={vid}
