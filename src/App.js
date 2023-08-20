@@ -16,6 +16,7 @@ import PaymentSuccess from './components/Payment/PaymentSuccess';
 import PaymentFailed from './components/Payment/PaymentFailed';
 import Notfound from './components/NotFound/Notfound';
 import MoviePage from './components/MoviePage/MoviePage';
+import Profile from './components/Profile/Profile';
 
 function App() {
   // window.addEventListener('contextmenu', e => {
@@ -34,6 +35,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/request" element={<Request />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/paymentsuccess" element={<PaymentSuccess />} />

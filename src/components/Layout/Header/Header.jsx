@@ -25,7 +25,7 @@ const LinkButton = ({ name, url, onClose }) => {
 
 const Header = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const isAuthenticated = false;
+  const isAuthenticated = true;
 
   const user = {
     role: 'admin',
@@ -48,6 +48,7 @@ const Header = () => {
         position={'fixed'}
         top={'3'}
         left={'3'}
+        zIndex={'overlay'}
         onClick={onOpen}
       >
         <TiThMenu />

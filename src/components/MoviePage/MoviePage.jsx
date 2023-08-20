@@ -39,8 +39,7 @@ const MoviePage = () => {
     <Grid
       minH={'90vh'}
       templateColumns={['1fr', '3fr 1fr']}
-      ml={{ base: 'none', md: '16' }}
-      mt={{ base: '14', md: 'none' }}
+      ml={{ base: 'none', md: '8' }}
     >
       <Box>
         <video
