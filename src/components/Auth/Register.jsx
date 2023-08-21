@@ -88,6 +88,7 @@ export default function Register() {
                   required
                   accept="image/*"
                   onChange={imageHandler}
+                  focusBorderColor="purple"
                 />
               </Center>
             </Stack>
