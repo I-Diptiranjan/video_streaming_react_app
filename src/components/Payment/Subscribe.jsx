@@ -45,7 +45,7 @@ const Subscribe = ({ user }) => {
           name: 'The Cimenatic Universe',
           description: 'Get Access to all Premium Contents',
           subscription_id: subscriptionId,
-          // callback_url: `${server}/paymentverification`,
+          callback_url: `${server}/paymentverification`,
           prefill: {
             name: user.name,
             email: user.email,
