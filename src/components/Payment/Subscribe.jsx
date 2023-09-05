@@ -60,7 +60,6 @@ const Subscribe = ({ user }) => {
       };
       openPopup();
       dispatch(getMyProfile());
-      navigate('/profile');
     }
   }, [dispatch, error, message, user.name, user.email, key, subscriptionId]);
 
