@@ -6,13 +6,20 @@ import {
   Text,
   Button,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RiCheckboxCircleFill } from 'react-icons/ri';
+import { useDispatch } from 'react-redux';
 
 import { Link, useSearchParams } from 'react-router-dom';
+import { getMyProfile } from '../../redux/Actions/user';
 
 const PaymentSuccess = () => {
   const reference = useSearchParams()[0].get('reference');
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getMyProfile());
+  }, [dispatch]);
+
   return (
     <Container h={'90vh'} p={'16'}>
       <Heading my={8} textAlign={'center'}>
