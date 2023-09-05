@@ -18,7 +18,7 @@ const PaymentSuccess = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getMyProfile());
-  }, [dispatch]);
+  }, []);
 
   return (
     <Container h={'90vh'} p={'16'}>

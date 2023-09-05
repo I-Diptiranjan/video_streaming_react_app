@@ -142,9 +142,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/paymentsuccess" element={<PaymentSuccess />} />
+            <Route path="/paymentsuccess" element={<PaymentSuccess />} />{' '}
+            
             <Route path="/paymentfailed" element={<PaymentFailed />} />
-
             <Route
               path="/admin/dashboard"
               element={
@@ -197,9 +197,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route path="*" element={<Notfound />} />
-
             <Route
               path="/resetpassword/:token"
               element={
