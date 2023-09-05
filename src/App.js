@@ -23,42 +23,199 @@ import Dashboard from './components/Admin/Dashboard/Dashboard';
 import CreateMovie from './components/Admin/CreateMovie/CreateMovie';
 import Users from './components/Admin/Users/Users';
 import AdminMovies from './components/Admin/AdminMovies/AdminMovies';
+import { useDispatch, useSelector } from 'react-redux';
+import toast, { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
+import { getMyProfile, login } from './redux/Actions/user';
+import { ProtectedRoute } from 'protected-route-react';
+import Loader from './components/Layout/Loader/Loader';
 
 function App() {
   // window.addEventListener('contextmenu', e => {
   //   e.preventDefault();
   // });
 
+  const { isAuthenticated, user, message, error, loading } = useSelector(
+    state => state.user
+  );
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch({ type: 'clearError' });
+    }
+    if (message) {
+      toast.success(message);
+      dispatch({ type: 'clearMessage' });
+    }
+  }, [dispatch, error, message]);
+
+  useEffect(() => {
+    dispatch(getMyProfile());
+  }, [dispatch]);
+
   return (
     <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/movie/:id" element={<MoviePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/request" element={<Request />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/changepassword" element={<ChangePassword />} />
-        <Route path="/updateprofile" element={<UpdateProfile />} />
-        <Route path="/forgetpassword" element={<ForgetPassword />} />
-        <Route path="/subscribe" element={<Subscribe />} />
-        <Route path="/paymentsuccess" element={<PaymentSuccess />} />
-        <Route path="/paymentfailed" element={<PaymentFailed />} />
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Header isAuthenticated={isAuthenticated} user={user} />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/movies" element={<Movies />} />
+            <Route
+              path="/movie/:id"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <MoviePage user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={!isAuthenticated}
+                  redirect="/profile"
+                >
+                  <Login />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={!isAuthenticated}
+                  redirect="/profile"
+                >
+                  <Register />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/request" element={<Request />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Profile user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/changepassword"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <ChangePassword />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/updateprofile"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <UpdateProfile user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forgetpassword"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={!isAuthenticated}
+                  redirect="/profile"
+                >
+                  <ForgetPassword />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/subscribe"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Subscribe user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/paymentsuccess" element={<PaymentSuccess />} />
+            <Route path="/paymentfailed" element={<PaymentFailed />} />
 
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/createmovie" element={<CreateMovie />} />
-        <Route path="/admin/users" element={<Users />} />
-        <Route path="/admin/movies" element={<AdminMovies />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute
+                  adminroute={true}
+                  redirect="/profile"
+                  isAdmin={user && user.role === 'admin'}
+                  isAuthenticated={isAuthenticated}
+                >
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/createmovie"
+              element={
+                <ProtectedRoute
+                  adminroute={true}
+                  redirect="/profile"
+                  isAdmin={user && user.role === 'admin'}
+                  isAuthenticated={isAuthenticated}
+                >
+                  <CreateMovie />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute
+                  adminroute={true}
+                  redirect="/profile"
+                  isAdmin={user && user.role === 'admin'}
+                  isAuthenticated={isAuthenticated}
+                >
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/movies"
+              element={
+                <ProtectedRoute
+                  adminroute={true}
+                  redirect="/profile"
+                  isAdmin={user && user.role === 'admin'}
+                  isAuthenticated={isAuthenticated}
+                >
+                  <AdminMovies />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route path="*" element={<Notfound />} />
+            <Route path="*" element={<Notfound />} />
 
-        <Route path="/resetpassword/:token" element={<ResetPassword />} />
-      </Routes>
-      <Footer />
+            <Route
+              path="/resetpassword/:token"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={!isAuthenticated}
+                  redirect="/profile"
+                >
+                  <ResetPassword />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Footer />
+          <Toaster />
+        </>
+      )}
     </Router>
   );
 }

@@ -20,37 +20,64 @@ import Sidebar from '../Sidebar';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
 import st from '../../../assets/images/st.jpeg';
 import MovieModal from './MovieModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { getAllMovies, getMovieEpisodes } from '../../../redux/Actions/movie';
+import { useState } from 'react';
+import {
+  addEpisodes,
+  deleteEpisodes,
+  deleteMovie,
+} from '../../../redux/Actions/admin';
+import { toast } from 'react-hot-toast';
 
 const AdminMovies = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const movies = [
-    {
-      _id: 'vjsdvjsvksvd',
-      title: 'Stranger Things 2',
-      category: 'Science Friction',
-      poster: {
-        url: st,
-      },
-      createdBy: 'Netflix',
-      views: 18000,
-      numOfVideos: 9,
-    },
-  ];
 
-  const movieDetailsHandler = id => {
+  const { movies, episodes } = useSelector(state => state.movie);
+  const { loading, error, message } = useSelector(state => state.admin);
+
+  const dispatch = useDispatch();
+
+  const [movieId, setMovieId] = useState('');
+  const [movieTitle, setMovieTitle] = useState('');
+
+  const movieDetailsHandler = (movieId, title) => {
+    dispatch(getMovieEpisodes(movieId));
     onOpen();
-    console.log(id);
+    setMovieId(movieId);
+    setMovieTitle(title);
   };
-  const DeleteUserhandler = id => {
-    console.log(id);
+  const DeleteButtonHandler = id => {
+    dispatch(deleteMovie(id));
   };
 
-  const DeleteEpisodeHandler = (movieId, episodeId) => {
-    console.log(episodeId, movieId);
+  const DeleteEpisodeHandler = async (movieId, episodeId) => {
+    await dispatch(deleteEpisodes(movieId, episodeId));
+    dispatch(getMovieEpisodes(movieId));
   };
-  const AddEpisodeHandler = (e, movieId, title, desc, video) => {
+  const AddEpisodeHandler = async (e, movieId, title, desc, video) => {
     e.preventDefault();
+    e.preventDefault();
+    const myForm = new FormData();
+    myForm.append('title', title);
+    myForm.append('description', desc);
+    myForm.append('file', video);
+    await dispatch(addEpisodes(movieId, myForm));
+    dispatch(getMovieEpisodes(movieId));
   };
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch({ type: 'clearError' });
+    }
+    if (message) {
+      toast.success(message);
+      dispatch({ type: 'clearMessage' });
+    }
+    dispatch(getAllMovies());
+  }, [dispatch, message, error]);
 
   return (
     <Grid minH={'100vh'} templateColumns={['1fr', '5fr 1fr']}>
@@ -83,7 +110,8 @@ const AdminMovies = () => {
                   item={item}
                   key={item._id}
                   movieDetailsHandler={movieDetailsHandler}
-                  DeleteUserhandler={DeleteUserhandler}
+                  DeleteButtonHandler={DeleteButtonHandler}
+                  loading={loading}
                 />
               ))}
             </Tbody>
@@ -92,10 +120,12 @@ const AdminMovies = () => {
         <MovieModal
           isOpen={isOpen}
           onClose={onClose}
-          id={'hsvklkbejvkwe'}
-          movieTitle={'Stranger Things 2'}
+          id={movieId}
+          movieTitle={movieTitle}
           DeleteButtonhandler={DeleteEpisodeHandler}
           AddEpisodeHandler={AddEpisodeHandler}
+          episodes={episodes}
+          loading={loading}
         />
       </Box>
       <Sidebar />
@@ -103,7 +133,7 @@ const AdminMovies = () => {
   );
 };
 
-function Row({ item, movieDetailsHandler, DeleteUserhandler }) {
+function Row({ item, movieDetailsHandler, DeleteButtonHandler, loading }) {
   return (
     <Tr>
       <Td>{item._id}</Td>
@@ -121,14 +151,16 @@ function Row({ item, movieDetailsHandler, DeleteUserhandler }) {
           <Button
             color="purple.500"
             variant={'outline'}
-            onClick={() => movieDetailsHandler(item._id)}
+            onClick={() => movieDetailsHandler(item._id, item.title)}
+            isLoading={loading}
           >
             View Episodes
           </Button>
           <Button
             color="purple.500"
             variant={'outline'}
-            onClick={() => DeleteUserhandler(item._id)}
+            onClick={() => DeleteButtonHandler(item._id)}
+            isLoading={loading}
           >
             <RiDeleteBin7Fill />
           </Button>

@@ -11,8 +11,14 @@ import {
 } from '@chakra-ui/react';
 import st from '../../assets/images/st.jpeg';
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllMovies } from '../../redux/Actions/movie';
+import { toast } from 'react-hot-toast';
+import { addToPlaylist } from '../../redux/Actions/profile';
+import { getMyProfile } from '../../redux/Actions/user';
+import Loader from '../Layout/Loader/Loader';
 
 const Movie = ({
   views,
@@ -23,6 +29,7 @@ const Movie = ({
   provider,
   description,
   episods,
+  loading,
 }) => {
   return (
     <VStack className="movie" alignItems={['center', 'flex-start']}>
@@ -64,6 +71,7 @@ const Movie = ({
           variant={'outline'}
           colorScheme="purple"
           onClick={() => addToPlaylistHandler(id)}
+          isLoading={loading}
         >
           Add to Playlist
         </Button>
@@ -85,62 +93,91 @@ const Movies = () => {
     'Fantasy',
     'Historical',
   ];
-  const addToPlaylistHandler = () => {
-    alert('Added to PlayList');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { loading, error, movies, message } = useSelector(state => state.movie);
+
+  const addToPlaylistHandler = async movieId => {
+    dispatch(addToPlaylist(movieId));
   };
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: 'clearMessage' });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: 'clearError' });
+    }
+    dispatch(getAllMovies(category, keyword));
+  }, [dispatch, category, keyword, error, message]);
 
   return (
     <Container minH={'95vh'} maxW={'container.lg'} py={'8'}>
-      <Heading children="All Movies / Series" m={'6'} />
-      <Input
-        placeholder="Search a Movie / Series"
-        focusBorderColor={'purple.600'}
-        onChange={e => setKeyword(e.target.value)}
-        type="text"
-        borderColor={'purple.300'}
-      />
-      <HStack
-        overflowX={'auto'}
-        py={'6'}
-        sx={{
-          '&::-webkit-scrollbar': {
-            height: '8px',
-            borderRadius: '8px',
-            backgroundColor: `rgba(0, 0, 0, 0.05)`,
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: `purple.300`,
-          },
-        }}
-      >
-        {categories.map((cat, index) => (
-          <Button
-            key={index}
-            minW={['20', '60']}
-            onClick={() => setCategory(cat)}
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Heading children="All Movies / Series" m={'6'} />
+          <Input
+            placeholder="Search a Movie / Series"
+            focusBorderColor={'purple.600'}
+            onChange={e => setKeyword(e.target.value)}
+            type="text"
+            borderColor={'purple.300'}
+          />
+          <HStack
+            overflowX={'auto'}
+            py={'6'}
+            sx={{
+              '&::-webkit-scrollbar': {
+                height: '8px',
+                borderRadius: '8px',
+                backgroundColor: `rgba(0, 0, 0, 0.05)`,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: `purple.300`,
+              },
+            }}
           >
-            <Text children={cat} />
-          </Button>
-        ))}
-      </HStack>
-      <Stack
-        direction={['column', 'row']}
-        flexWrap={'wrap'}
-        justifyContent={['flex-start', 'space-evenly']}
-        alignItems={['center', 'flex-start']}
-      >
-        <Movie
-          title={'Stranger Things 2'}
-          description={
-            'The series was created by the Duffer Brothers, who also serve as executive producers along with Shawn Levy, Dan Cohen and Iain Paterson'
-          }
-          views={'100k'}
-          image={st}
-          provider={'Netflix'}
-          episods={9}
-          addToPlaylistHandler={addToPlaylistHandler}
-        />
-      </Stack>
+            {categories.map((cat, index) => (
+              <Button
+                key={index}
+                minW={['20', '60']}
+                onClick={() => setCategory(cat)}
+              >
+                <Text children={cat} />
+              </Button>
+            ))}
+          </HStack>
+          <Stack
+            direction={['column', 'row']}
+            flexWrap={'wrap'}
+            justifyContent={['flex-start', 'space-evenly']}
+            alignItems={['center', 'flex-start']}
+          >
+            {movies.length > 0 ? (
+              movies.map(item => (
+                <Movie
+                  key={item._id}
+                  id={item._id}
+                  title={item.title}
+                  description={item.description}
+                  views={item.views}
+                  image={item.poster.url}
+                  provider={item.createdBy}
+                  episods={item.numOfVideos}
+                  addToPlaylistHandler={addToPlaylistHandler}
+                  loading={loading}
+                />
+              ))
+            ) : (
+              <Heading children="Movie not Found" opacity={0.7} mt={16} />
+            )}
+          </Stack>
+        </>
+      )}
     </Container>
   );
 };

@@ -8,15 +8,25 @@ import {
   Button,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { login } from '../../redux/Actions/user';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const dispatch = useDispatch();
+
+  const submitHandler = e => {
+    e.preventDefault();
+    dispatch(login(email, password));
+  };
+
   return (
     <Container w={'100vw'} my={40} h={'60vh'}>
       <VStack>
         <Heading children="The Cinematic Universe" />
-        <form action="5" style={{ width: '70%' }}>
+        <form style={{ width: '70%' }} onSubmit={submitHandler}>
           <Box my={6}>
             <FormLabel htmlFor="email" children="Enter Your Email" />
             <Input

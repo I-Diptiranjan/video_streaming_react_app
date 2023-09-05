@@ -27,6 +27,7 @@ const MovieModal = ({
   AddEpisodeHandler,
   movieTitle,
   episodes = [],
+  loading,
 }) => {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -75,15 +76,19 @@ const MovieModal = ({
                 <Heading size={'md'} opacity={0.7}>{`${id}`}</Heading>
               </Box>
               <Heading size={'lg'}>Episodes</Heading>
-              <VideoCard
-                title={'Episode 1'}
-                desc={'This is the first episode'}
-                num={1}
-                episodeId={'jhdsivksdj'}
-                movieId={id}
-                DeleteButtonhandler={DeleteButtonhandler}
-                lectures
-              />
+              {episodes.map((item, i) => (
+                <VideoCard
+                  key={i}
+                  title={item.title}
+                  desc={item.description}
+                  num={i + 1}
+                  episodeId={item._id}
+                  movieId={id}
+                  DeleteButtonhandler={DeleteButtonhandler}
+                  lectures
+                  loading={loading}
+                />
+              ))}
             </Box>
 
             <Box>
@@ -123,7 +128,12 @@ const MovieModal = ({
                       controls
                     ></video>
                   )}
-                  <Button w={'full'} type="submit" colorScheme="purple">
+                  <Button
+                    w={'full'}
+                    type="submit"
+                    colorScheme="purple"
+                    isLoading={loading}
+                  >
                     {' '}
                     Add{' '}
                   </Button>
@@ -156,6 +166,7 @@ function VideoCard({
   episodeId,
   movieId,
   DeleteButtonhandler,
+  loading,
 }) {
   return (
     <Stack
@@ -171,7 +182,7 @@ function VideoCard({
 
         <Text>{desc}</Text>
       </Box>{' '}
-      <Button>
+      <Button isLoading={loading}>
         <RiDeleteBin7Fill
           color="purple.600"
           onClick={() => DeleteButtonhandler(movieId, episodeId)}

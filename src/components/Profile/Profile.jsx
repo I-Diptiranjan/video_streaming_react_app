@@ -18,40 +18,70 @@ import {
   ModalContent,
   ModalHeader,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import st from '../../assets/images/st.jpeg';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
 import { fileUploadCss } from '../Auth/Register';
+import {
+  updateProfile,
+  updateProfilePic,
+  removeFromPlaylist,
+} from '../../redux/Actions/profile';
+import { useDispatch, useSelector } from 'react-redux';
+import { cancelSubscripton, getMyProfile } from '../../redux/Actions/user';
+import Loader from '../Layout/Loader/Loader';
+import toast, { Toaster } from 'react-hot-toast';
 
-const Profile = () => {
-  const user = {
-    name: 'Diptiranjan Sahoo',
-    email: 'dipti@gmail.com',
-    createdAt: String(new Date().toISOString()),
-    role: 'user',
-    subscription: {
-      status: 'active',
-    },
-    playlist: [
-      {
-        course: 'dsshfvsk',
-        poster: st,
-      },
-    ],
-  };
-
-  const removeFromPlaylist = id => {
-    console.log(id);
-  };
-  const changeImageSubmitHandler = (e, image) => {
+const Profile = ({ user }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { message, error, loading } = useSelector(state => state.profile);
+  const {
+    message: msg,
+    error: err,
+    loading: load,
+  } = useSelector(state => state.subscription);
+  const changeImageSubmitHandler = async (e, image) => {
     e.preventDefault();
+    const myForm = new FormData();
+    myForm.append('file', image);
+    await dispatch(updateProfilePic(myForm));
+    dispatch(getMyProfile());
   };
+
+  const removeFromPlaylistHandler = async id => {
+    dispatch(removeFromPlaylist(id));
+  };
+
+  const cancelSubscriptionHandler = async id => {
+    await dispatch(cancelSubscripton());
+  };
+
+  useEffect(() => {
+    if (message) {
+      dispatch({ type: 'clearMessage' });
+      dispatch(getMyProfile());
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: 'clearError' });
+    }
+    if (msg) {
+      toast.success(msg);
+      dispatch({ type: 'clearMessage' });
+      dispatch(getMyProfile());
+    }
+    if (err) {
+      toast.error(err);
+      dispatch({ type: 'clearError' });
+    }
+  }, [dispatch, error, message, msg, err]);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   return (
-    <Container maxW={'container.lg'} py={'8'}>
+    <Container maxW={'container.lg'} py={'8'} minH={'95vh'}>
       <Heading children="Profile" m={'8'} textTransform={'uppercase'} />
       <Stack
         justifyContent={'flex-start'}
@@ -61,7 +91,7 @@ const Profile = () => {
         padding={'8'}
       >
         <VStack>
-          <Avatar boxSize={'48'} />
+          <Avatar boxSize={'48'} src={user.avtar.url} />
           <Button colorScheme="purple" variant={'ghost'} onClick={onOpen}>
             Change Photo
           </Button>
@@ -83,8 +113,13 @@ const Profile = () => {
           {user.role !== 'admin' && (
             <HStack>
               <Text fontWeight={'bold'}>Subscription</Text>
-              {user.subscription.status === 'active' ? (
-                <Button color={'red'} variant={'unstyled'}>
+              {user.subscription && user.subscription.status === 'active' ? (
+                <Button
+                  color={'red'}
+                  variant={'unstyled'}
+                  onClick={cancelSubscriptionHandler}
+                  isLoading={load}
+                >
                   Cancel Subscription
                 </Button>
               ) : (
@@ -116,21 +151,22 @@ const Profile = () => {
           p={4}
         >
           {user.playlist.map(element => (
-            <VStack w={48} m={2} key={element.course}>
+            <VStack w={48} m={2} key={element.movie}>
               <Image
                 boxSize={'full'}
                 objectFit={'contain'}
                 src={element.poster}
               />
               <HStack>
-                <Link to={`/movie/${element.course}`}>
+                <Link to={`/movie/${element.movie}`}>
                   <Button variant={'ghost'} colorScheme="purple">
                     Watch Now
                   </Button>
                 </Link>
                 <Button
                   variant={'unstyled'}
-                  onClick={() => removeFromPlaylist(element.course)}
+                  onClick={() => removeFromPlaylistHandler(element.movie)}
+                  isLoading={loading}
                 >
                   <RiDeleteBin7Fill />
                 </Button>
@@ -144,6 +180,7 @@ const Profile = () => {
         onClose={onClose}
         changeImageSubmitHandler={changeImageSubmitHandler}
       />
+      <Toaster />
     </Container>
   );
 };
@@ -153,6 +190,7 @@ export default Profile;
 function ChangePhotoBox({ isOpen, onClose, changeImageSubmitHandler }) {
   const [imagePrev, setImagePrev] = useState('');
   const [image, setImage] = useState('');
+  const { loading } = useSelector(state => state.profile);
   const changeImage = e => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -186,7 +224,12 @@ function ChangePhotoBox({ isOpen, onClose, changeImageSubmitHandler }) {
                   css={{ '&::file-selector-button': fileUploadCss }}
                   onChange={changeImage}
                 />
-                <Button w={'full'} colorScheme="purple" type="submit">
+                <Button
+                  w={'full'}
+                  colorScheme="purple"
+                  type="submit"
+                  isLoading={loading}
+                >
                   Change
                 </Button>
               </VStack>

@@ -10,17 +10,40 @@ import {
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast, Toaster } from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { requestMovie } from '../../redux/Actions/others';
+import { useEffect } from 'react';
 
 const Request = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [movie, setMovie] = useState('');
 
+  const dispatch = useDispatch();
+  const { error, loading, message } = useSelector(state => state.other);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch({ type: 'clearError' });
+    }
+    if (message) {
+      toast.success(message);
+      dispatch({ type: 'clearMessage' });
+    }
+  }, [dispatch, message, error]);
+
+  const submitHandler = e => {
+    e.preventDefault();
+    dispatch(requestMovie(name, email, movie));
+  };
+
   return (
     <Container w={'100vw'} my={40} h={'60vh'}>
       <VStack>
         <Heading children="Request a Movie / Series" />
-        <form action="5" style={{ width: '70%' }}>
+        <form onSubmit={submitHandler} style={{ width: '70%' }}>
           <Box my={6}>
             <FormLabel htmlFor="name" children="Enter Your Name" />
             <Input
@@ -67,6 +90,7 @@ const Request = () => {
               colorScheme="purple"
               type="submit"
               w={'full'}
+              isLoading={loading}
             >
               Request
             </Button>

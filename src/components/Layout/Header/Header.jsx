@@ -14,6 +14,8 @@ import {
 } from '@chakra-ui/react';
 import { TiThMenu } from 'react-icons/ti';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../redux/Actions/user';
 
 const LinkButton = ({ name, url, onClose }) => {
   return (
@@ -23,17 +25,14 @@ const LinkButton = ({ name, url, onClose }) => {
   );
 };
 
-const Header = () => {
+const Header = ({ isAuthenticated = false, user }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const isAuthenticated = true;
 
-  const user = {
-    role: 'admin',
-  };
+  const dispatch = useDispatch();
 
   const logoutHandler = () => {
-    alert('Logout');
     onClose();
+    dispatch(logout());
   };
   return (
     <>
