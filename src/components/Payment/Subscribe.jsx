@@ -59,6 +59,8 @@ const Subscribe = ({ user }) => {
         razorpay.open();
       };
       openPopup();
+      dispatch(getMyProfile());
+      navigate('/profile');
     }
   }, [dispatch, error, message, user.name, user.email, key, subscriptionId]);
 
