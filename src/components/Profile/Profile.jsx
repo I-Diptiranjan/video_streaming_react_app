@@ -59,9 +59,9 @@ const Profile = ({ user }) => {
   };
 
   useEffect(() => {
+    dispatch(getMyProfile());
     if (message) {
       dispatch({ type: 'clearMessage' });
-      dispatch(getMyProfile());
     }
     if (error) {
       toast.error(error);

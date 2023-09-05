@@ -15,10 +15,6 @@ import { getMyProfile } from '../../redux/Actions/user';
 
 const PaymentSuccess = () => {
   const reference = useSearchParams()[0].get('reference');
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(getMyProfile());
-  }, []);
 
   return (
     <Container h={'90vh'} p={'16'}>
