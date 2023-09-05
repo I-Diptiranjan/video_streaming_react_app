@@ -38,7 +38,7 @@ const Subscribe = ({ user }) => {
       dispatch({ type: 'clearError' });
     }
     if (subscriptionId) {
-      const openPopup = () => {
+      const openPopup = async () => {
         console.log(subscriptionId);
         const options = {
           key,
@@ -59,7 +59,6 @@ const Subscribe = ({ user }) => {
         razorpay.open();
       };
       openPopup();
-      dispatch(getMyProfile());
     }
   }, [dispatch, error, message, user.name, user.email, key, subscriptionId]);
 
