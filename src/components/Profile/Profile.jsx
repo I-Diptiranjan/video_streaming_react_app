@@ -59,7 +59,6 @@ const Profile = ({ user }) => {
   };
 
   useEffect(() => {
-    dispatch(getMyProfile());
     if (message) {
       dispatch({ type: 'clearMessage' });
     }
